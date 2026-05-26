@@ -20,5 +20,7 @@ export interface Purchase {
 
 export interface BudgetSettings {
   monthly: number;
-  weekdayShare: number; // 0..1 share of monthly budget assigned to mon-thu
+  weekday: number; // mon-thu budget for current week
+  weekend: number; // fri-sun budget for current weekend
+  other: number;   // monthly "Övrigt" budget
 }

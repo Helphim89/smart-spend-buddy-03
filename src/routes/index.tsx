@@ -12,6 +12,7 @@ import { BudgetBlock } from "@/components/budget/BudgetBlock";
 import { AddPurchase } from "@/components/budget/AddPurchase";
 import { HistoryList } from "@/components/budget/HistoryList";
 import { SpendingChart } from "@/components/budget/SpendingChart";
+import { OutcomeTable } from "@/components/budget/OutcomeTable";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({

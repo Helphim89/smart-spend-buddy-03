@@ -2,12 +2,14 @@ import { useEffect, useState, useCallback } from "react";
 import type { Purchase, BudgetSettings } from "./budget-types";
 
 const PURCHASES_KEY = "budget.purchases.v1";
-const SETTINGS_KEY = "budget.settings.v1";
+const SETTINGS_KEY = "budget.settings.v2";
 const THEME_KEY = "budget.theme.v1";
 
 const DEFAULT_SETTINGS: BudgetSettings = {
   monthly: 15000,
-  weekdayShare: 0.55,
+  weekday: 1500,
+  weekend: 1500,
+  other: 1000,
 };
 
 function readJSON<T>(key: string, fallback: T): T {

@@ -12,6 +12,7 @@ import { BudgetBlock } from "@/components/budget/BudgetBlock";
 import { AddPurchase } from "@/components/budget/AddPurchase";
 import { HistoryList } from "@/components/budget/HistoryList";
 import { SpendingChart } from "@/components/budget/SpendingChart";
+import { OutcomeTable } from "@/components/budget/OutcomeTable";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({
@@ -110,20 +111,34 @@ function Index() {
 
         <div className="grid gap-3">
           <BudgetBlock
-            title="Mån–tors"
+            title="Mån–tors (denna vecka)"
             budget={snap.weekdayBudget}
             spent={snap.spentWeekday}
             left={snap.leftWeekday}
             status={weekdayStatus}
+            editable
+            onChangeBudget={(n) => setSettings({ ...settings, weekday: n })}
             hint={!todayWeekend ? `Daglig kvar idag ≈ ${formatSEK(snap.dailyLeft)}` : undefined}
           />
           <BudgetBlock
-            title="Fre–sön"
+            title="Fre–sön (denna helg)"
             budget={snap.weekendBudget}
             spent={snap.spentWeekend}
             left={snap.leftWeekend}
             status={weekendStatus}
+            editable
+            onChangeBudget={(n) => setSettings({ ...settings, weekend: n })}
             hint={todayWeekend ? `Daglig kvar idag ≈ ${formatSEK(snap.dailyLeft)}` : undefined}
+          />
+          <BudgetBlock
+            title="Övrigt (månad)"
+            budget={snap.otherBudget}
+            spent={snap.spentOther}
+            left={snap.leftOther}
+            status={statusFromPct(snap.otherBudget > 0 ? (snap.spentOther / snap.otherBudget) * 100 : 0)}
+            editable
+            onChangeBudget={(n) => setSettings({ ...settings, other: n })}
+            hint="Allt som hamnar i kategorin Övrigt"
           />
           <BudgetBlock
             title="Hela månaden"
@@ -136,6 +151,9 @@ function Index() {
         </div>
 
         <SpendingChart purchases={purchases} />
+
+        <OutcomeTable purchases={purchases} />
+
 
         <section>
           <h2 className="px-2 pb-2 pt-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">

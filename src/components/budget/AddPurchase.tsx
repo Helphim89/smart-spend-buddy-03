@@ -1,0 +1,115 @@
+import { useState } from "react";
+import { Plus, Sparkles, X } from "lucide-react";
+import { CATEGORIES, type Category } from "@/lib/budget-types";
+import { categorize, parseQuickEntry } from "@/lib/categorize";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+interface Props {
+  onAdd: (entry: { amount: number; description: string; category: Category }) => void;
+}
+
+export function AddPurchase({ onAdd }: Props) {
+  const [open, setOpen] = useState(false);
+  const [input, setInput] = useState("");
+  const [category, setCategory] = useState<Category | null>(null);
+
+  const parsed = parseQuickEntry(input);
+  const suggested = parsed ? categorize(parsed.description) : null;
+  const chosen = category ?? suggested;
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!parsed || !chosen) {
+      toast.error("Skriv t.ex. 'Mat 129' eller 'Pizza 250'");
+      return;
+    }
+    onAdd({ amount: parsed.amount, description: parsed.description, category: chosen });
+    toast.success(`${parsed.description} • ${chosen}`);
+    setInput("");
+    setCategory(null);
+    setOpen(false);
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed bottom-6 right-6 z-30 h-16 w-16 rounded-full bg-accent text-accent-foreground shadow-xl shadow-accent/30 flex items-center justify-center active:scale-95 transition-transform"
+        aria-label="Lägg till köp"
+      >
+        <Plus className="h-7 w-7" strokeWidth={2.5} />
+      </button>
+
+      {open ? (
+        <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center">
+          <div className="w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-3xl p-6 pb-8 border border-border animate-in slide-in-from-bottom-4">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-lg font-semibold">Nytt köp</h2>
+              <button
+                onClick={() => setOpen(false)}
+                className="h-9 w-9 rounded-full bg-muted flex items-center justify-center"
+                aria-label="Stäng"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={submit}>
+              <input
+                autoFocus
+                inputMode="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Mat 129"
+                className="w-full text-xl font-medium bg-muted rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-accent placeholder:text-muted-foreground/60"
+              />
+
+              {parsed && suggested ? (
+                <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Sparkles className="h-4 w-4 text-accent" />
+                  <span>
+                    Föreslagen kategori: <span className="text-foreground font-medium">{suggested}</span>
+                  </span>
+                </div>
+              ) : null}
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {CATEGORIES.map((c) => {
+                  const active = chosen === c;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => setCategory(c)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium border transition-colors",
+                        active
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-card text-foreground border-border hover:bg-muted",
+                      )}
+                    >
+                      {c}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                type="submit"
+                disabled={!parsed}
+                className="mt-6 w-full bg-accent text-accent-foreground rounded-2xl py-4 font-semibold disabled:opacity-40 active:scale-[0.98] transition-transform"
+              >
+                Lägg till
+              </button>
+
+              <p className="mt-3 text-xs text-muted-foreground text-center">
+                Tips: "Köpte tacos och läsk 230" tolkas som Mat.
+              </p>
+            </form>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}

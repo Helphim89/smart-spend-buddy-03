@@ -1,52 +1,29 @@
 import type { Category } from "./budget-types";
 
-const KEYWORDS: Record<Category, string[]> = {
-  Mat: [
-    "mat", "ica", "coop", "willys", "lidl", "hemköp", "city gross",
-    "mjölk", "bröd", "frukt", "grönt", "kött", "kyckling", "fisk",
-    "tacos", "pasta", "ris", "pizza ingred", "läsk", "godis", "snacks",
-    "frukost", "lunchlåda", "matkasse",
-  ],
-  Restaurang: [
-    "restaurang", "pizza", "sushi", "burger", "mcdonalds", "max",
-    "kfc", "subway", "thai", "kebab", "café", "cafe", "fika",
-    "espresso house", "wayne", "starbucks", "lunch ute", "middag ute",
-    "ölhak", "bar", "öl ute",
-  ],
-  Barn: [
-    "barn", "blöjor", "barnvagn", "leksak", "leksaker", "lego",
-    "förskola", "dagis", "skola", "lekland", "babyshop",
-  ],
-  Hus: [
-    "hus", "hem", "hyra", "el", "vatten", "bredband", "wifi",
-    "möbel", "ikea", "jysk", "verktyg", "bauhaus", "byggmax",
-    "städ", "tvätt", "rengöring", "växt", "blomma",
-  ],
-  Nöje: [
-    "nöje", "bio", "netflix", "spotify", "viaplay", "hbo", "disney",
-    "spel", "playstation", "steam", "konsert", "biljett", "gym",
-    "padel", "bok", "tidning",
-  ],
-  Transport: [
-    "transport", "bensin", "diesel", "tanka", "tankning", "okq8",
-    "circle k", "shell", "preem", "sl", "buss", "tåg", "sj",
-    "taxi", "uber", "bolt", "parkering", "p-avgift", "trängselskatt",
-  ],
-  Övrigt: [],
-};
+// Allt som luktar mat, dryck eller livsmedel räknas som Mat.
+// Vin, sprit, öl, systembolaget = Mat.
+const MAT_KEYWORDS = [
+  "mat", "ica", "coop", "willys", "lidl", "hemköp", "hemkop", "city gross",
+  "matkasse", "frukost", "lunch", "middag", "fika",
+  "mjölk", "mjolk", "bröd", "brod", "frukt", "grönt", "gront", "kött", "kott",
+  "kyckling", "fisk", "tacos", "pasta", "ris", "pizza", "läsk", "lask",
+  "godis", "snacks", "kaffe", "te ", "smör", "smor", "ost", "ägg", "agg",
+  "yoghurt", "müsli", "musli",
+  // dryck / alkohol -> mat
+  "vin", "öl", "ol", "bira", "sprit", "whisky", "vodka", "gin", "rom",
+  "champagne", "cider", "alkohol", "systembolaget", "systemet", "bolaget",
+  // snabbmat & restaurang räknas också som mat
+  "restaurang", "sushi", "burger", "mcdonalds", "max ", "kfc", "subway",
+  "thai", "kebab", "café", "cafe", "espresso house", "wayne", "starbucks",
+  "bar ", "pub",
+];
 
 export function categorize(input: string): Category {
-  const text = input.toLowerCase();
-  let best: { cat: Category; score: number } = { cat: "Övrigt", score: 0 };
-  for (const cat of Object.keys(KEYWORDS) as Category[]) {
-    for (const kw of KEYWORDS[cat]) {
-      if (text.includes(kw)) {
-        const score = kw.length;
-        if (score > best.score) best = { cat, score };
-      }
-    }
+  const text = " " + input.toLowerCase() + " ";
+  for (const kw of MAT_KEYWORDS) {
+    if (text.includes(kw)) return "Mat";
   }
-  return best.cat;
+  return "Övrigt";
 }
 
 /** Parse "Mat 129" or "Köpte tacos och läsk 230" -> { description, amount } */

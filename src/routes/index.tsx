@@ -5,14 +5,14 @@ import {
   computeSnapshot,
   formatSEK,
   statusFromPct,
-  isWeekend,
 } from "@/lib/budget-math";
-import { MonthlyBudgetCard } from "@/components/budget/MonthlyBudgetCard";
 import { BudgetBlock } from "@/components/budget/BudgetBlock";
 import { AddPurchase } from "@/components/budget/AddPurchase";
 import { HistoryList } from "@/components/budget/HistoryList";
 import { SpendingChart } from "@/components/budget/SpendingChart";
 import { OutcomeTable } from "@/components/budget/OutcomeTable";
+import { WeeklyOutcome } from "@/components/budget/WeeklyOutcome";
+import { SettingsSheet } from "@/components/budget/SettingsSheet";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/")({
@@ -37,37 +37,57 @@ function Index() {
 
   const under = snap.percentVsExpected < 0;
   const pctAbs = Math.abs(Math.round(snap.percentVsExpected));
-  const todayWeekend = isWeekend(new Date());
+
+  const fmtRange = (a: Date, b: Date) =>
+    `${a.toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}–${b.toLocaleDateString("sv-SE", { day: "numeric", month: "short" })}`;
 
   return (
     <div className="min-h-screen bg-background pb-32">
       <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-border/40">
         <div className="max-w-xl mx-auto flex items-center justify-between px-5 py-4">
-          <div>
-            <p className="text-xs text-muted-foreground">
-              {new Date().toLocaleDateString("sv-SE", {
-                month: "long",
-                year: "numeric",
-              })}
+          <div className="min-w-0">
+            <p className="text-xs text-muted-foreground truncate">
+              Löningscykel {fmtRange(snap.cycleStart, snap.cycleEnd)}
             </p>
             <h1 className="text-xl font-semibold">Budget</h1>
           </div>
-          <button
-            onClick={toggle}
-            className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"
-            aria-label="Byt tema"
-          >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex bg-muted rounded-full p-1 text-xs font-medium">
+              {settings.users.map((u) => {
+                const active = settings.currentUser === u;
+                return (
+                  <button
+                    key={u}
+                    onClick={() => setSettings({ ...settings, currentUser: u })}
+                    className={`px-3 py-1.5 rounded-full transition-colors max-w-[6rem] truncate ${
+                      active ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                    }`}
+                  >
+                    {u}
+                  </button>
+                );
+              })}
+            </div>
+            <SettingsSheet settings={settings} onChange={setSettings} />
+            <button
+              onClick={toggle}
+              className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"
+              aria-label="Byt tema"
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-xl mx-auto px-5 py-6 space-y-4">
         <section className="bg-card rounded-3xl p-5 border border-border/60">
-          <MonthlyBudgetCard
-            monthly={settings.monthly}
-            onChange={(n) => setSettings({ ...settings, monthly: n })}
-          />
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Total budget / löning
+          </p>
+          <p className="mt-1 text-3xl font-semibold tabular-nums">
+            {formatSEK(settings.monthly)}
+          </p>
 
           <div className="mt-5 grid grid-cols-2 gap-3">
             <div className="rounded-2xl bg-muted/60 px-4 py-3">
@@ -80,10 +100,17 @@ function Index() {
             </div>
             <div className="rounded-2xl bg-muted/60 px-4 py-3">
               <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                Prognos
+                Prognos kvar
               </p>
-              <p className="mt-1 text-lg font-semibold tabular-nums">
-                {formatSEK(snap.forecast)}
+              <p
+                className={`mt-1 text-lg font-semibold tabular-nums ${
+                  snap.forecastLeft < 0 ? "text-[var(--color-danger)]" : ""
+                }`}
+              >
+                {formatSEK(snap.forecastLeft)}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                om hela budgeten används
               </p>
             </div>
           </div>
@@ -111,37 +138,37 @@ function Index() {
 
         <div className="grid gap-3">
           <BudgetBlock
-            title="Mån–tors (denna vecka)"
+            title="Mat mån–fre (denna vecka)"
             budget={snap.weekdayBudget}
             spent={snap.spentWeekday}
             left={snap.leftWeekday}
             status={weekdayStatus}
             editable
             onChangeBudget={(n) => setSettings({ ...settings, weekday: n })}
-            hint={!todayWeekend ? `Daglig kvar idag ≈ ${formatSEK(snap.dailyLeft)}` : undefined}
           />
           <BudgetBlock
-            title="Fre–sön (denna helg)"
+            title="Mat helg (lör–sön)"
             budget={snap.weekendBudget}
             spent={snap.spentWeekend}
             left={snap.leftWeekend}
             status={weekendStatus}
             editable
             onChangeBudget={(n) => setSettings({ ...settings, weekend: n })}
-            hint={todayWeekend ? `Daglig kvar idag ≈ ${formatSEK(snap.dailyLeft)}` : undefined}
           />
           <BudgetBlock
-            title="Övrigt (månad)"
+            title="Övrigt (per löning)"
             budget={snap.otherBudget}
             spent={snap.spentOther}
             left={snap.leftOther}
-            status={statusFromPct(snap.otherBudget > 0 ? (snap.spentOther / snap.otherBudget) * 100 : 0)}
+            status={statusFromPct(
+              snap.otherBudget > 0 ? (snap.spentOther / snap.otherBudget) * 100 : 0,
+            )}
             editable
             onChangeBudget={(n) => setSettings({ ...settings, other: n })}
-            hint="Allt som hamnar i kategorin Övrigt"
+            hint="Allt som inte är mat hamnar här"
           />
           <BudgetBlock
-            title="Hela månaden"
+            title="Hela löningscykeln"
             budget={snap.monthly}
             spent={snap.spentMonth}
             left={snap.leftMonth}
@@ -150,10 +177,21 @@ function Index() {
           />
         </div>
 
+        <WeeklyOutcome
+          purchases={purchases}
+          payday={settings.payday}
+          weekdayBudget={settings.weekday}
+          weekendBudget={settings.weekend}
+          otherBudget={settings.other}
+        />
+
         <SpendingChart purchases={purchases} />
 
-        <OutcomeTable purchases={purchases} />
-
+        <OutcomeTable
+          purchases={purchases}
+          payday={settings.payday}
+          users={settings.users}
+        />
 
         <section>
           <h2 className="px-2 pb-2 pt-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -163,7 +201,12 @@ function Index() {
         </section>
       </main>
 
-      <AddPurchase onAdd={add} />
+      <AddPurchase
+        onAdd={add}
+        users={settings.users}
+        currentUser={settings.currentUser}
+        onSetUser={(u) => setSettings({ ...settings, currentUser: u })}
+      />
       <Toaster position="top-center" />
     </div>
   );

@@ -83,12 +83,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Minimalistisk mobilbudget. Skriv in köp snabbt, se prognos och hur mycket som är kvar i veckan.",
       },
       { name: "theme-color", content: "#0a0a0a" },
-      { property: "og:title", content: "Budget" },
+      { property: "og:title", content: "Budget – snabb koll på din månad" },
       {
         property: "og:description",
         content: "Snabb och minimal budgetapp för din månad.",
       },
       { property: "og:type", content: "website" },
+      { name: "twitter:title", content: "Budget – snabb koll på din månad" },
+      { name: "description", content: "Budget Buddy is a mobile-first budgeting app for quick expense tracking and budget monitoring." },
+      { property: "og:description", content: "Budget Buddy is a mobile-first budgeting app for quick expense tracking and budget monitoring." },
+      { name: "twitter:description", content: "Budget Buddy is a mobile-first budgeting app for quick expense tracking and budget monitoring." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/286a725d-5b9e-4c45-86af-ec7754eaf01e/id-preview-b5922d28--5ab85f54-1017-4126-ab84-205ada147b82.lovable.app-1779859128582.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/286a725d-5b9e-4c45-86af-ec7754eaf01e/id-preview-b5922d28--5ab85f54-1017-4126-ab84-205ada147b82.lovable.app-1779859128582.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
       {

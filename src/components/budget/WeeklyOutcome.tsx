@@ -1,5 +1,6 @@
 import type { Purchase } from "@/lib/budget-types";
 import { formatSEK, weeksInMonth } from "@/lib/budget-math";
+import { cn } from "@/lib/utils";
 
 interface Props {
   purchases: Purchase[];
@@ -14,29 +15,35 @@ export function WeeklyOutcome({
   const weeks = weeksInMonth(purchases);
 
   return (
-    <div className="bg-card rounded-3xl border border-border/60 overflow-hidden">
-      <div className="px-5 pt-5 pb-3">
-        <h3 className="font-semibold">Utfall per vecka</h3>
+    <div className="bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden">
+      <div className="px-5 pt-5 pb-2">
+        <h3 className="font-semibold text-sm">Utfall per vecka</h3>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Mat mån–fre, Mat helg, samt övrigt — per vecka denna månad
+          Mat vardag, Mat helg, Övrigt
         </p>
       </div>
-      <div className="px-5 pb-3 grid grid-cols-[1fr_repeat(3,minmax(0,1fr))] gap-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+
+      {/* Header row */}
+      <div className="px-5 pb-2 grid grid-cols-[1fr_repeat(3,minmax(0,1fr))] gap-2 text-[10px] uppercase tracking-wide text-muted-foreground">
         <span></span>
-        <span className="text-right">Vecka</span>
+        <span className="text-right">Vardag</span>
         <span className="text-right">Helg</span>
         <span className="text-right">Övrigt</span>
       </div>
-      <div className="divide-y divide-border/60">
+
+      <div className="divide-y divide-border/40">
         {weeks.map((w, i) => (
           <div
             key={i}
-            className="px-5 py-3 grid grid-cols-[1fr_repeat(3,minmax(0,1fr))] gap-2 items-center text-sm"
+            className={cn(
+              "px-5 py-3 grid grid-cols-[1fr_repeat(3,minmax(0,1fr))] gap-2 items-center text-sm transition-colors",
+              w.isCurrent && "bg-accent/5"
+            )}
           >
             <div className="flex items-center gap-2">
-              <span className="font-medium">{w.label}</span>
+              <span className="font-semibold text-xs">{w.label}</span>
               {w.isCurrent && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent font-medium">
+                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground font-semibold">
                   nu
                 </span>
               )}
@@ -56,15 +63,16 @@ function Cell({ value, budget }: { value: number; budget?: number }) {
   return (
     <div className="text-right">
       <p
-        className={`tabular-nums font-medium ${
+        className={cn(
+          "tabular-nums text-xs font-semibold",
           over ? "text-[var(--color-danger)]" : ""
-        }`}
+        )}
       >
         {formatSEK(value)}
       </p>
       {budget !== undefined && (
-        <p className="text-[10px] text-muted-foreground tabular-nums">
-          av {formatSEK(budget)}
+        <p className="text-[9px] text-muted-foreground tabular-nums">
+          / {formatSEK(budget)}
         </p>
       )}
     </div>

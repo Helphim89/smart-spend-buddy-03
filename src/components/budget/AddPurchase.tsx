@@ -48,15 +48,15 @@ export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-30 h-16 w-16 rounded-full bg-accent text-accent-foreground shadow-xl shadow-accent/30 flex items-center justify-center active:scale-95 transition-transform"
+        className="fixed bottom-6 right-6 z-30 h-14 w-14 rounded-2xl bg-accent text-accent-foreground shadow-lg shadow-accent/25 flex items-center justify-center active:scale-95 transition-transform"
         aria-label="Lägg till köp"
       >
-        <Plus className="h-7 w-7" strokeWidth={2.5} />
+        <Plus className="h-6 w-6" strokeWidth={2.5} />
       </button>
 
-      {open ? (
+      {open && (
         <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center">
-          <div className="w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-3xl p-6 pb-8 border border-border animate-in slide-in-from-bottom-4">
+          <div className="w-full sm:max-w-md bg-card rounded-t-2xl sm:rounded-2xl p-6 pb-8 border border-border shadow-xl animate-in slide-in-from-bottom-4">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-lg font-semibold">Nytt köp</h2>
               <button
@@ -69,7 +69,6 @@ export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
             </div>
 
             <form onSubmit={submit}>
-              {/* användarväljare */}
               <div className="mb-3 flex gap-2">
                 {users.map((u) => {
                   const active = currentUser === u;
@@ -79,10 +78,10 @@ export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
                       type="button"
                       onClick={() => onSetUser(u)}
                       className={cn(
-                        "flex-1 py-2 rounded-2xl text-sm font-medium border transition-colors",
+                        "flex-1 py-2 rounded-xl text-sm font-medium border transition-colors",
                         active
                           ? "bg-foreground text-background border-foreground"
-                          : "bg-card text-foreground border-border",
+                          : "bg-card text-foreground border-border hover:bg-muted/50",
                       )}
                     >
                       {u}
@@ -97,10 +96,10 @@ export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Mat 129"
-                className="w-full text-xl font-medium bg-muted rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-accent placeholder:text-muted-foreground/60"
+                className="w-full text-lg font-medium bg-muted rounded-xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-accent placeholder:text-muted-foreground/60"
               />
 
-              {parsed && suggested ? (
+              {parsed && suggested && (
                 <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
                   <Sparkles className="h-4 w-4 text-accent" />
                   <span>
@@ -108,7 +107,7 @@ export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
                     <span className="text-foreground font-medium">{suggested}</span>
                   </span>
                 </div>
-              ) : null}
+              )}
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {CATEGORIES.map((c) => {
@@ -119,10 +118,10 @@ export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
                       type="button"
                       onClick={() => setCategory(c)}
                       className={cn(
-                        "px-4 py-2 rounded-full text-sm font-medium border transition-colors",
+                        "px-4 py-2 rounded-xl text-sm font-medium border transition-colors",
                         active
                           ? "bg-foreground text-background border-foreground"
-                          : "bg-card text-foreground border-border hover:bg-muted",
+                          : "bg-card text-foreground border-border hover:bg-muted/50",
                       )}
                     >
                       {c}
@@ -134,7 +133,7 @@ export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
               <button
                 type="submit"
                 disabled={!parsed}
-                className="mt-6 w-full bg-accent text-accent-foreground rounded-2xl py-4 font-semibold disabled:opacity-40 active:scale-[0.98] transition-transform"
+                className="mt-5 w-full bg-accent text-accent-foreground rounded-xl py-3.5 font-semibold text-sm disabled:opacity-40 active:scale-[0.98] transition-transform"
               >
                 Lägg till
               </button>
@@ -145,7 +144,7 @@ export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
             </form>
           </div>
         </div>
-      ) : null}
+      )}
     </>
   );
 }

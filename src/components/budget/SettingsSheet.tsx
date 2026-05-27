@@ -26,10 +26,10 @@ export function SettingsSheet({ settings, onChange }: Props) {
         <Cog className="h-4 w-4" />
       </button>
 
-      {open ? (
+      {open && (
         <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center">
-          <div className="w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-3xl p-6 pb-8 border border-border max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-5">
+          <div className="w-full sm:max-w-md bg-card rounded-t-2xl sm:rounded-2xl p-6 pb-8 border border-border max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold">Inställningar</h2>
               <button
                 onClick={() => setOpen(false)}
@@ -40,13 +40,13 @@ export function SettingsSheet({ settings, onChange }: Props) {
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               <Field label="Total budget per månad (kr)">
                 <input
                   type="number"
                   value={local.monthly}
                   onChange={(e) => setLocal({ ...local, monthly: +e.target.value || 0 })}
-                  className="w-32 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent"
+                  className="w-32 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent text-sm"
                 />
               </Field>
 
@@ -55,7 +55,7 @@ export function SettingsSheet({ settings, onChange }: Props) {
                   type="number"
                   value={local.weekday}
                   onChange={(e) => setLocal({ ...local, weekday: +e.target.value || 0 })}
-                  className="w-32 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent"
+                  className="w-32 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent text-sm"
                 />
               </Field>
 
@@ -64,7 +64,7 @@ export function SettingsSheet({ settings, onChange }: Props) {
                   type="number"
                   value={local.weekend}
                   onChange={(e) => setLocal({ ...local, weekend: +e.target.value || 0 })}
-                  className="w-32 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent"
+                  className="w-32 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent text-sm"
                 />
               </Field>
 
@@ -73,12 +73,12 @@ export function SettingsSheet({ settings, onChange }: Props) {
                   type="number"
                   value={local.other}
                   onChange={(e) => setLocal({ ...local, other: +e.target.value || 0 })}
-                  className="w-32 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent"
+                  className="w-32 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent text-sm"
                 />
               </Field>
 
-              <div className="pt-2 border-t border-border/60">
-                <p className="text-sm font-medium mb-2">Personer</p>
+              <div className="pt-4 border-t border-border/40">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Personer</p>
                 <div className="space-y-2">
                   {[0, 1].map((i) => (
                     <input
@@ -95,7 +95,7 @@ export function SettingsSheet({ settings, onChange }: Props) {
                         setLocal({ ...local, users, currentUser });
                       }}
                       placeholder={`Person ${i + 1}`}
-                      className="w-full bg-muted rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-accent"
+                      className="w-full bg-muted rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-accent text-sm"
                     />
                   ))}
                 </div>
@@ -104,13 +104,13 @@ export function SettingsSheet({ settings, onChange }: Props) {
 
             <button
               onClick={save}
-              className="mt-6 w-full bg-accent text-accent-foreground rounded-2xl py-4 font-semibold active:scale-[0.98] transition-transform"
+              className="mt-6 w-full bg-accent text-accent-foreground rounded-xl py-3.5 font-semibold text-sm active:scale-[0.98] transition-transform"
             >
               Spara
             </button>
           </div>
         </div>
-      ) : null}
+      )}
     </>
   );
 }

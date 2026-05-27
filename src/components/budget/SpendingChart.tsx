@@ -72,16 +72,16 @@ export function SpendingChart({ purchases }: { purchases: Purchase[] }) {
   }, [purchases, mode]);
 
   return (
-    <div className="bg-card rounded-3xl p-5 border border-border/60">
+    <div className="bg-card rounded-2xl p-5 border border-border/60 shadow-sm">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold">Kostnader</h3>
-        <div className="flex bg-muted rounded-full p-1 text-xs font-medium">
+        <h3 className="font-semibold text-sm">Kostnader</h3>
+        <div className="flex bg-muted rounded-lg p-0.5 text-xs font-medium">
           {(["day", "week", "month"] as Mode[]).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
               className={cn(
-                "px-3 py-1.5 rounded-full transition-colors",
+                "px-3 py-1 rounded-md transition-colors",
                 mode === m ? "bg-card text-foreground shadow-sm" : "text-muted-foreground",
               )}
             >
@@ -120,7 +120,7 @@ export function SpendingChart({ purchases }: { purchases: Purchase[] }) {
               }}
               formatter={(v: number) => [formatSEK(v), "Spenderat"]}
             />
-            <Bar dataKey="value" fill="var(--color-accent)" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="value" fill="var(--color-accent)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -6,10 +6,18 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 interface Props {
-  onAdd: (entry: { amount: number; description: string; category: Category }) => void;
+  users: [string, string];
+  currentUser: string;
+  onSetUser: (u: string) => void;
+  onAdd: (entry: {
+    amount: number;
+    description: string;
+    category: Category;
+    user: string;
+  }) => void;
 }
 
-export function AddPurchase({ onAdd }: Props) {
+export function AddPurchase({ onAdd, users, currentUser, onSetUser }: Props) {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [category, setCategory] = useState<Category | null>(null);
@@ -24,8 +32,13 @@ export function AddPurchase({ onAdd }: Props) {
       toast.error("Skriv t.ex. 'Mat 129' eller 'Pizza 250'");
       return;
     }
-    onAdd({ amount: parsed.amount, description: parsed.description, category: chosen });
-    toast.success(`${parsed.description} • ${chosen}`);
+    onAdd({
+      amount: parsed.amount,
+      description: parsed.description,
+      category: chosen,
+      user: currentUser,
+    });
+    toast.success(`${parsed.description} • ${chosen} • ${currentUser}`);
     setInput("");
     setCategory(null);
     setOpen(false);
@@ -56,6 +69,28 @@ export function AddPurchase({ onAdd }: Props) {
             </div>
 
             <form onSubmit={submit}>
+              {/* användarväljare */}
+              <div className="mb-3 flex gap-2">
+                {users.map((u) => {
+                  const active = currentUser === u;
+                  return (
+                    <button
+                      key={u}
+                      type="button"
+                      onClick={() => onSetUser(u)}
+                      className={cn(
+                        "flex-1 py-2 rounded-2xl text-sm font-medium border transition-colors",
+                        active
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-card text-foreground border-border",
+                      )}
+                    >
+                      {u}
+                    </button>
+                  );
+                })}
+              </div>
+
               <input
                 autoFocus
                 inputMode="text"
@@ -69,7 +104,8 @@ export function AddPurchase({ onAdd }: Props) {
                 <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
                   <Sparkles className="h-4 w-4 text-accent" />
                   <span>
-                    Föreslagen kategori: <span className="text-foreground font-medium">{suggested}</span>
+                    Föreslagen kategori:{" "}
+                    <span className="text-foreground font-medium">{suggested}</span>
                   </span>
                 </div>
               ) : null}
@@ -104,7 +140,7 @@ export function AddPurchase({ onAdd }: Props) {
               </button>
 
               <p className="mt-3 text-xs text-muted-foreground text-center">
-                Tips: "Köpte tacos och läsk 230" tolkas som Mat.
+                Tips: Vin & sprit räknas som Mat. Allt utan matkoppling blir Övrigt.
               </p>
             </form>
           </div>

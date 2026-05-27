@@ -9,12 +9,7 @@ interface Props {
 
 const CATEGORY_COLOR: Record<string, string> = {
   Mat: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  Restaurang: "bg-orange-500/15 text-orange-700 dark:text-orange-300",
-  Barn: "bg-pink-500/15 text-pink-700 dark:text-pink-300",
-  Hus: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
-  Nöje: "bg-purple-500/15 text-purple-700 dark:text-purple-300",
-  Transport: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  Övrigt: "bg-zinc-500/15 text-zinc-700 dark:text-zinc-300",
+  "Övrigt": "bg-zinc-500/15 text-zinc-700 dark:text-zinc-300",
 };
 
 function formatDate(iso: string): string {
@@ -33,11 +28,11 @@ export function HistoryList({ purchases, onRemove }: Props) {
 
   return (
     <div className="bg-card rounded-3xl border border-border/60 overflow-hidden divide-y divide-border/60">
-      {purchases.slice(0, 20).map((p) => (
+      {purchases.slice(0, 30).map((p) => (
         <div key={p.id} className="flex items-center gap-3 px-5 py-4">
           <div className="flex-1 min-w-0">
             <p className="font-medium truncate capitalize">{p.description}</p>
-            <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
               <span
                 className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
                   CATEGORY_COLOR[p.category] ?? CATEGORY_COLOR.Övrigt
@@ -45,6 +40,11 @@ export function HistoryList({ purchases, onRemove }: Props) {
               >
                 {p.category}
               </span>
+              {p.user ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground">
+                  {p.user}
+                </span>
+              ) : null}
               <span>{formatDate(p.date)}</span>
             </div>
           </div>

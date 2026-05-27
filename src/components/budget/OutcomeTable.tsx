@@ -1,23 +1,22 @@
 import type { Purchase } from "@/lib/budget-types";
 import { CATEGORIES } from "@/lib/budget-types";
-import { formatSEK, spentByCategory, spentByUser, cyclePurchases } from "@/lib/budget-math";
+import { formatSEK, spentByCategory, spentByUser, monthPurchases } from "@/lib/budget-math";
 
 interface Props {
   purchases: Purchase[];
-  payday: number;
   users: [string, string];
 }
 
-export function OutcomeTable({ purchases, payday, users }: Props) {
-  const inCycle = cyclePurchases(purchases, payday);
-  const totals = spentByCategory(inCycle);
+export function OutcomeTable({ purchases, users }: Props) {
+  const inMonth = monthPurchases(purchases);
+  const totals = spentByCategory(inMonth);
   const grand = Object.values(totals).reduce((a, b) => a + b, 0);
-  const perUser = spentByUser(inCycle);
+  const perUser = spentByUser(inMonth);
 
   return (
     <div className="bg-card rounded-3xl border border-border/60 overflow-hidden">
       <div className="px-5 pt-5 pb-3 flex items-baseline justify-between">
-        <h3 className="font-semibold">Utfall denna löningscykel</h3>
+        <h3 className="font-semibold">Utfall denna månad</h3>
         <p className="text-sm text-muted-foreground tabular-nums">{formatSEK(grand)}</p>
       </div>
 

@@ -47,7 +47,7 @@ function Index() {
         <div className="max-w-xl mx-auto flex items-center justify-between px-5 py-4">
           <div className="min-w-0">
             <p className="text-xs text-muted-foreground truncate">
-              Löningscykel {fmtRange(snap.cycleStart, snap.cycleEnd)}
+              {fmtRange(snap.monthStart, snap.monthEnd)}
             </p>
             <h1 className="text-xl font-semibold">Budget</h1>
           </div>
@@ -83,7 +83,7 @@ function Index() {
       <main className="max-w-xl mx-auto px-5 py-6 space-y-4">
         <section className="bg-card rounded-3xl p-5 border border-border/60">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-            Total budget / löning
+            Total budget / månad
           </p>
           <p className="mt-1 text-3xl font-semibold tabular-nums">
             {formatSEK(settings.monthly)}
@@ -156,7 +156,7 @@ function Index() {
             onChangeBudget={(n) => setSettings({ ...settings, weekend: n })}
           />
           <BudgetBlock
-            title="Övrigt (per löning)"
+            title="Övrigt (per månad)"
             budget={snap.otherBudget}
             spent={snap.spentOther}
             left={snap.leftOther}
@@ -168,7 +168,7 @@ function Index() {
             hint="Allt som inte är mat hamnar här"
           />
           <BudgetBlock
-            title="Hela löningscykeln"
+            title="Hela månaden"
             budget={snap.monthly}
             spent={snap.spentMonth}
             left={snap.leftMonth}
@@ -179,7 +179,6 @@ function Index() {
 
         <WeeklyOutcome
           purchases={purchases}
-          payday={settings.payday}
           weekdayBudget={settings.weekday}
           weekendBudget={settings.weekend}
           otherBudget={settings.other}
@@ -189,7 +188,6 @@ function Index() {
 
         <OutcomeTable
           purchases={purchases}
-          payday={settings.payday}
           users={settings.users}
         />
 

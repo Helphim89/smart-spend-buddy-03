@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import type { Purchase, BudgetSettings } from "./budget-types";
 
 const PURCHASES_KEY = "budget.purchases.v1";
-const SETTINGS_KEY = "budget.settings.v3";
+const SETTINGS_KEY = "budget.settings.v4";
 const THEME_KEY = "budget.theme.v1";
 
 const DEFAULT_SETTINGS: BudgetSettings = {
@@ -10,7 +10,6 @@ const DEFAULT_SETTINGS: BudgetSettings = {
   weekday: 1500,
   weekend: 1500,
   other: 4000,
-  payday: 27,
   users: ["Person 1", "Person 2"],
   currentUser: "Person 1",
 };

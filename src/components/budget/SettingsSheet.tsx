@@ -41,20 +41,7 @@ export function SettingsSheet({ settings, onChange }: Props) {
             </div>
 
             <div className="space-y-4">
-              <Field label="Lönedag (dag i månaden)">
-                <input
-                  type="number"
-                  min={1}
-                  max={28}
-                  value={local.payday}
-                  onChange={(e) =>
-                    setLocal({ ...local, payday: Math.max(1, Math.min(28, +e.target.value || 27)) })
-                  }
-                  className="w-24 bg-muted rounded-xl px-3 py-2 tabular-nums outline-none focus:ring-2 focus:ring-accent"
-                />
-              </Field>
-
-              <Field label="Total budget per löningscykel (kr)">
+              <Field label="Total budget per månad (kr)">
                 <input
                   type="number"
                   value={local.monthly}
@@ -81,7 +68,7 @@ export function SettingsSheet({ settings, onChange }: Props) {
                 />
               </Field>
 
-              <Field label="Övrigt per löningscykel (kr)">
+              <Field label="Övrigt per månad (kr)">
                 <input
                   type="number"
                   value={local.other}

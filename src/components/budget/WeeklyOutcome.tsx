@@ -1,25 +1,24 @@
 import type { Purchase } from "@/lib/budget-types";
-import { formatSEK, weeksInCycle } from "@/lib/budget-math";
+import { formatSEK, weeksInMonth } from "@/lib/budget-math";
 
 interface Props {
   purchases: Purchase[];
-  payday: number;
   weekdayBudget: number;
   weekendBudget: number;
   otherBudget: number;
 }
 
 export function WeeklyOutcome({
-  purchases, payday, weekdayBudget, weekendBudget,
+  purchases, weekdayBudget, weekendBudget,
 }: Props) {
-  const weeks = weeksInCycle(purchases, payday);
+  const weeks = weeksInMonth(purchases);
 
   return (
     <div className="bg-card rounded-3xl border border-border/60 overflow-hidden">
       <div className="px-5 pt-5 pb-3">
         <h3 className="font-semibold">Utfall per vecka</h3>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Mat mån–fre, Mat helg, samt övrigt — per vecka i löningscykeln
+          Mat mån–fre, Mat helg, samt övrigt — per vecka denna månad
         </p>
       </div>
       <div className="px-5 pb-3 grid grid-cols-[1fr_repeat(3,minmax(0,1fr))] gap-2 text-[10px] uppercase tracking-wide text-muted-foreground">

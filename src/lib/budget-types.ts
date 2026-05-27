@@ -12,11 +12,10 @@ export interface Purchase {
 }
 
 export interface BudgetSettings {
-  monthly: number;  // per löningscykel
+  monthly: number;  // per månad
   weekday: number;  // mån–fre Mat-budget per vecka
   weekend: number;  // lör–sön Mat-budget per helg
-  other: number;    // Övrigt-budget per löningscykel
-  payday: number;   // dag i månaden som lönen kommer (default 27)
+  other: number;    // Övrigt-budget per månad
   users: [string, string];
   currentUser: string;
 }

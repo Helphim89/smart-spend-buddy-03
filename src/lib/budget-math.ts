@@ -41,26 +41,22 @@ export function isWeekend(d: Date): boolean {
   return day === 0 || day === 6;
 }
 
-/* --------------------------- löningscykel --------------------------- */
+/* --------------------------- månad --------------------------- */
 
-/** Returnerar [start, end] för pågående löningscykel.
- * Cykeln går från `payday` denna eller förra månaden till `payday-1` nästa. */
-export function cycleRange(payday: number, ref = new Date()): [Date, Date] {
-  const y = ref.getFullYear();
-  const m = ref.getMonth();
-  const day = ref.getDate();
-  let start: Date;
-  if (day >= payday) {
-    start = new Date(y, m, payday);
-  } else {
-    start = new Date(y, m - 1, payday);
-  }
-  const end = new Date(start.getFullYear(), start.getMonth() + 1, start.getDate() - 1, 23, 59, 59, 999);
-  return [start, end];
+export function startOfMonth(d = new Date()): Date {
+  return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+export function endOfMonth(d = new Date()): Date {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+}
+export function daysInMonth(d = new Date()): number {
+  return endOfMonth(d).getDate();
 }
 
-export function cyclePurchases(purchases: Purchase[], payday: number, ref = new Date()): Purchase[] {
-  return inRange(purchases, cycleRange(payday, ref));
+export function monthPurchases(purchases: Purchase[], ref = new Date()): Purchase[] {
+  const start = startOfMonth(ref);
+  const end = endOfMonth(ref);
+  return inRange(purchases, [start, end]);
 }
 
 export function inRange(purchases: Purchase[], [s, e]: [Date, Date]): Purchase[] {
@@ -76,7 +72,7 @@ export function sum(purchases: Purchase[]): number {
   return purchases.reduce((acc, p) => acc + p.amount, 0);
 }
 
-/* ---------------------- veckor inom cykeln ---------------------- */
+/* ---------------------- veckor inom månaden ---------------------- */
 
 export interface WeekBucket {
   label: string;       // "v.34" eller "v.34 (denna)"
@@ -96,12 +92,12 @@ function isoWeek(d: Date): number {
   return Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }
 
-export function weeksInCycle(
+export function weeksInMonth(
   purchases: Purchase[],
-  payday: number,
   ref = new Date(),
 ): WeekBucket[] {
-  const [start, end] = cycleRange(payday, ref);
+  const start = startOfMonth(ref);
+  const end = endOfMonth(ref);
   const buckets: WeekBucket[] = [];
   const currentWeekStart = startOfWeek(ref).getTime();
   let cursor = startOfWeek(start);
@@ -110,7 +106,6 @@ export function weeksInCycle(
     const wEnd = new Date(cursor);
     wEnd.setDate(wEnd.getDate() + 6);
     wEnd.setHours(23, 59, 59, 999);
-    // klipp till cykeln
     const effStart = wStart.getTime() < start.getTime() ? start : wStart;
     const effEnd = wEnd.getTime() > end.getTime() ? end : wEnd;
     const week = inRange(purchases, [effStart, effEnd]);
@@ -149,7 +144,7 @@ export interface BudgetSnapshot {
   otherBudget: number;
   spentWeekday: number; // Mat mån–fre denna vecka
   spentWeekend: number; // Mat lör–sön denna helg
-  spentOther: number;   // Övrigt under hela cykeln
+  spentOther: number;   // Övrigt under hela månaden
   leftWeekday: number;
   leftWeekend: number;
   leftOther: number;
@@ -157,10 +152,10 @@ export interface BudgetSnapshot {
   daysTotal: number;
   daysLeft: number;
   dailyAvg: number;
-  forecastLeft: number;       // kvar om hela budgetar används ut perioden
+  forecastLeft: number;
   percentVsExpected: number;
-  cycleStart: Date;
-  cycleEnd: Date;
+  monthStart: Date;
+  monthEnd: Date;
 }
 
 export function computeSnapshot(
@@ -168,13 +163,13 @@ export function computeSnapshot(
   settings: BudgetSettings,
   ref = new Date(),
 ): BudgetSnapshot {
-  const [cStart, cEnd] = cycleRange(settings.payday, ref);
-  const inCycle = inRange(purchases, [cStart, cEnd]);
-  const spentMonth = sum(inCycle);
+  const mStart = startOfMonth(ref);
+  const mEnd = endOfMonth(ref);
+  const inMonth = inRange(purchases, [mStart, mEnd]);
+  const spentMonth = sum(inMonth);
   const monthly = settings.monthly;
   const leftMonth = monthly - spentMonth;
 
-  // Mat denna vecka uppdelat på vardag / helg
   const wkRange = currentWeekdayRange(ref);
   const wkEndRange = currentWeekendRange(ref);
   const spentWeekday = sum(
@@ -183,22 +178,22 @@ export function computeSnapshot(
   const spentWeekend = sum(
     inRange(purchases, wkEndRange).filter((p) => p.category === "Mat"),
   );
-  const spentOther = sum(inCycle.filter((p) => p.category === "Övrigt"));
+  const spentOther = sum(inMonth.filter((p) => p.category === "Övrigt"));
 
   const daysTotal =
-    Math.round((cEnd.getTime() - cStart.getTime()) / 86_400_000) + 1;
+    Math.round((mEnd.getTime() - mStart.getTime()) / 86_400_000) + 1;
   const daysPassed = Math.min(
     daysTotal,
-    Math.round((startOfDay(ref).getTime() - cStart.getTime()) / 86_400_000) + 1,
+    Math.round((startOfDay(ref).getTime() - mStart.getTime()) / 86_400_000) + 1,
   );
   const daysLeft = Math.max(daysTotal - daysPassed, 0);
   const dailyAvg = daysPassed > 0 ? spentMonth / daysPassed : 0;
 
-  // Prognos: hur mycket är kvar om resten av cykeln spenderar fulla budgetar
-  const weeks = weeksInCycle(purchases, settings.payday, ref);
+  // Prognos
+  const weeks = weeksInMonth(purchases, ref);
   let plannedRemaining = 0;
   for (const w of weeks) {
-    if (w.end.getTime() < startOfDay(ref).getTime()) continue; // klar
+    if (w.end.getTime() < startOfDay(ref).getTime()) continue;
     if (w.isCurrent) {
       plannedRemaining += Math.max(0, settings.weekday - spentWeekday);
       plannedRemaining += Math.max(0, settings.weekend - spentWeekend);
@@ -232,8 +227,8 @@ export function computeSnapshot(
     dailyAvg,
     forecastLeft,
     percentVsExpected,
-    cycleStart: cStart,
-    cycleEnd: cEnd,
+    monthStart: mStart,
+    monthEnd: mEnd,
   };
 }
 
@@ -266,20 +261,4 @@ export function spentByUser(purchases: Purchase[]): Record<string, number> {
     out[u] = (out[u] ?? 0) + p.amount;
   }
   return out;
-}
-
-/* bakåtkompatibilitet — används av äldre komponenter */
-export function monthPurchases(purchases: Purchase[], ref = new Date()): Purchase[] {
-  const start = new Date(ref.getFullYear(), ref.getMonth(), 1);
-  const end = new Date(ref.getFullYear(), ref.getMonth() + 1, 0, 23, 59, 59, 999);
-  return inRange(purchases, [start, end]);
-}
-export function startOfMonth(d = new Date()): Date {
-  return new Date(d.getFullYear(), d.getMonth(), 1);
-}
-export function endOfMonth(d = new Date()): Date {
-  return new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
-}
-export function daysInMonth(d = new Date()): number {
-  return endOfMonth(d).getDate();
 }

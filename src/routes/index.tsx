@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Moon, Sun, TrendingDown, TrendingUp, Utensils, Sunset, Package, CalendarDays } from "lucide-react";
-import { usePurchases, useSettings, useTheme } from "@/lib/budget-store";
+import { useState } from "react";
+import { Moon, Sun, TrendingDown, TrendingUp, Utensils, Sunset, Package, CalendarDays, Share2, Check } from "lucide-react";
+import { usePurchases, useSettings, useTheme, useHouseholdId } from "@/lib/budget-store";
 import {
   computeSnapshot,
   formatSEK,
@@ -14,16 +15,36 @@ import { OutcomeTable } from "@/components/budget/OutcomeTable";
 import { WeeklyOutcome } from "@/components/budget/WeeklyOutcome";
 import { SettingsSheet } from "@/components/budget/SettingsSheet";
 import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
-  const { purchases, add, remove } = usePurchases();
-  const { settings, setSettings } = useSettings();
+  const householdId = useHouseholdId();
+  const { purchases, add, remove } = usePurchases(householdId);
+  const { settings, setSettings, ready } = useSettings(householdId);
   const { theme, toggle } = useTheme();
+  const [copied, setCopied] = useState(false);
   const snap = computeSnapshot(purchases, settings);
+
+  async function shareLink() {
+    if (typeof window === "undefined") return;
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Budget", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        toast.success("Länk kopierad");
+        setTimeout(() => setCopied(false), 1500);
+      }
+    } catch {
+      /* avbruten */
+    }
+  }
 
   const monthStatus = statusFromPct(
     snap.monthly > 0 ? (snap.spentMonth / snap.monthly) * 100 : 0,
@@ -75,6 +96,13 @@ function Index() {
                 );
               })}
             </div>
+            <button
+              onClick={shareLink}
+              className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"
+              aria-label="Dela länk"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+            </button>
             <SettingsSheet settings={settings} onChange={setSettings} />
             <button
               onClick={toggle}
@@ -214,12 +242,7 @@ function Index() {
           </div>
         </section>
 
-        <WeeklyOutcome
-          purchases={purchases}
-          weekdayBudget={settings.weekday}
-          weekendBudget={settings.weekend}
-          otherBudget={settings.other}
-        />
+        <WeeklyOutcome purchases={purchases} settings={settings} />
 
         <SpendingChart purchases={purchases} />
 

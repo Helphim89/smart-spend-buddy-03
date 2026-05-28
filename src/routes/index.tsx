@@ -96,6 +96,13 @@ function Index() {
                 );
               })}
             </div>
+            <button
+              onClick={shareLink}
+              className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"
+              aria-label="Dela länk"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+            </button>
             <SettingsSheet settings={settings} onChange={setSettings} />
             <button
               onClick={toggle}

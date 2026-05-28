@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      households: {
+        Row: {
+          created_at: string
+          id: string
+          monthly: number
+          other: number
+          payday: number
+          updated_at: string
+          user1: string
+          user2: string
+          weekday: number
+          weekend: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          monthly?: number
+          other?: number
+          payday?: number
+          updated_at?: string
+          user1?: string
+          user2?: string
+          weekday?: number
+          weekend?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          monthly?: number
+          other?: number
+          payday?: number
+          updated_at?: string
+          user1?: string
+          user2?: string
+          weekday?: number
+          weekend?: number
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          date: string
+          description: string
+          household_id: string
+          id: string
+          user_name: string | null
+        }
+        Insert: {
+          amount: number
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          household_id: string
+          id?: string
+          user_name?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          date?: string
+          description?: string
+          household_id?: string
+          id?: string
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchases_household_id_fkey"
+            columns: ["household_id"]
+            isOneToOne: false
+            referencedRelation: "households"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

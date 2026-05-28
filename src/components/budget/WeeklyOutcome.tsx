@@ -44,8 +44,8 @@ export function WeeklyOutcome({ purchases, settings }: Props) {
                 </span>
               )}
             </div>
-            <Cell value={w.mat} budget={weekdayBudget} />
-            <Cell value={w.helg} budget={weekendBudget} />
+            <Cell value={w.mat} budget={w.weekdayBudget} />
+            <Cell value={w.helg} budget={w.weekendBudget} />
             <Cell value={w.ovrigt} />
           </div>
         ))}

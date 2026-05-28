@@ -159,12 +159,13 @@ export function usePurchases(householdId: string | null) {
 
   const update = useCallback(async (id: string, patch: Partial<Purchase>) => {
     setPurchases((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p)));
-    const dbPatch: Record<string, unknown> = {};
+    const dbPatch: Record<string, string | number | null> = {};
     if (patch.amount !== undefined) dbPatch.amount = patch.amount;
     if (patch.description !== undefined) dbPatch.description = patch.description;
     if (patch.category !== undefined) dbPatch.category = patch.category;
-    if (patch.user !== undefined) dbPatch.user_name = patch.user;
+    if (patch.user !== undefined) dbPatch.user_name = patch.user ?? null;
     if (patch.date !== undefined) dbPatch.date = patch.date;
+    // @ts-expect-error - dynamic patch shape
     await supabase.from("purchases").update(dbPatch).eq("id", id);
   }, []);
 

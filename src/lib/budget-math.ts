@@ -22,7 +22,8 @@ export function startOfWeek(d = new Date()): Date {
 }
 export function isWeekend(d: Date): boolean {
   const day = d.getDay();
-  return day === 0 || day === 6;
+  // Helg = fredag (5), lördag (6), söndag (0)
+  return day === 0 || day === 5 || day === 6;
 }
 
 /* --------------------------- löne-cykel --------------------------- */

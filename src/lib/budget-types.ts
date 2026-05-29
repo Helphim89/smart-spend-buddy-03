@@ -8,15 +8,14 @@ export interface Purchase {
   description: string;
   category: Category;
   date: string; // ISO
-  user?: string;
+  user?: string; // namn på personen som la in
 }
 
 export interface BudgetSettings {
-  monthly: number;
-  weekday: number;  // Mat mån–fre per full vecka
-  weekend: number;  // Mat lör–sön per full helg
-  other: number;    // Övrigt per cykel
-  payday: number;   // 1..28
+  monthly: number;  // per månad
+  weekday: number;  // mån–fre Mat-budget per vecka
+  weekend: number;  // lör–sön Mat-budget per helg
+  other: number;    // Övrigt-budget per månad
   users: [string, string];
   currentUser: string;
 }

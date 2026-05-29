@@ -1,14 +1,18 @@
-import type { Purchase, BudgetSettings } from "@/lib/budget-types";
-import { formatSEK, weeksInCycle } from "@/lib/budget-math";
+import type { Purchase } from "@/lib/budget-types";
+import { formatSEK, weeksInMonth } from "@/lib/budget-math";
 import { cn } from "@/lib/utils";
 
 interface Props {
   purchases: Purchase[];
-  settings: BudgetSettings;
+  weekdayBudget: number;
+  weekendBudget: number;
+  otherBudget: number;
 }
 
-export function WeeklyOutcome({ purchases, settings }: Props) {
-  const weeks = weeksInCycle(purchases, settings);
+export function WeeklyOutcome({
+  purchases, weekdayBudget, weekendBudget,
+}: Props) {
+  const weeks = weeksInMonth(purchases);
 
   return (
     <div className="bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden">
@@ -44,8 +48,8 @@ export function WeeklyOutcome({ purchases, settings }: Props) {
                 </span>
               )}
             </div>
-            <Cell value={w.mat} budget={w.weekdayBudget} />
-            <Cell value={w.helg} budget={w.weekendBudget} />
+            <Cell value={w.mat} budget={weekdayBudget} />
+            <Cell value={w.helg} budget={weekendBudget} />
             <Cell value={w.ovrigt} />
           </div>
         ))}

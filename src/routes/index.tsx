@@ -209,7 +209,7 @@ function Index() {
             />
             <BudgetBlock
               title="Mat helg"
-              subtitle="lör–sön"
+              subtitle="fre–sön"
               icon={Sunset}
               budget={snap.weekendBudget}
               spent={snap.spentWeekend}

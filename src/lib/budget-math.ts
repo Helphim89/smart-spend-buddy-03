@@ -129,7 +129,8 @@ export function weeksInCycle(
       const [eStart, eEnd] = clipped;
       const wd = countWeekdays(eStart, eEnd);
       const we = countWeekendDays(eStart, eEnd);
-      const weekdayBudget = Math.round((settings.weekday * wd) / 4);
+      // Mat vardag: alltid full veckobudget (ingen pro-rata)
+      const weekdayBudget = settings.weekday;
       const weekendBudget = Math.round((settings.weekend * we) / 3);
       const week = inRange(purchases, [eStart, eEnd]);
       let mat = 0, helg = 0, ovrigt = 0;
@@ -210,7 +211,8 @@ export function computeSnapshot(
     const [ws, we] = weekClip;
     weekdayDays = countWeekdays(ws, we);
     weekendDays = countWeekendDays(ws, we);
-    weekdayBudget = Math.round((settings.weekday * weekdayDays) / 4);
+    // Mat vardag: alltid full veckobudget (ingen pro-rata)
+    weekdayBudget = settings.weekday;
     weekendBudget = Math.round((settings.weekend * weekendDays) / 3);
 
     const weekPurchases = inRange(purchases, [ws, we]);

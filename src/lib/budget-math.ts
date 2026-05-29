@@ -210,8 +210,8 @@ export function computeSnapshot(
     const [ws, we] = weekClip;
     weekdayDays = countWeekdays(ws, we);
     weekendDays = countWeekendDays(ws, we);
-    weekdayBudget = Math.round((settings.weekday * weekdayDays) / 5);
-    weekendBudget = Math.round((settings.weekend * weekendDays) / 2);
+    weekdayBudget = Math.round((settings.weekday * weekdayDays) / 4);
+    weekendBudget = Math.round((settings.weekend * weekendDays) / 3);
 
     const weekPurchases = inRange(purchases, [ws, we]);
     for (const p of weekPurchases) {

@@ -198,7 +198,7 @@ function Index() {
           <div className="grid gap-3">
             <BudgetBlock
               title="Mat vardag"
-              subtitle="mån–fre denna vecka"
+              subtitle="mån–tors denna vecka"
               icon={Utensils}
               budget={snap.weekdayBudget}
               spent={snap.spentWeekday}
@@ -209,7 +209,7 @@ function Index() {
             />
             <BudgetBlock
               title="Mat helg"
-              subtitle="lör–sön"
+              subtitle="fre–sön"
               icon={Sunset}
               budget={snap.weekendBudget}
               spent={snap.spentWeekend}

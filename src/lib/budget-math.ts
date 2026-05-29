@@ -22,7 +22,8 @@ export function startOfWeek(d = new Date()): Date {
 }
 export function isWeekend(d: Date): boolean {
   const day = d.getDay();
-  return day === 0 || day === 6;
+  // Helg = fredag (5), lördag (6), söndag (0)
+  return day === 0 || day === 5 || day === 6;
 }
 
 /* --------------------------- löne-cykel --------------------------- */
@@ -128,8 +129,8 @@ export function weeksInCycle(
       const [eStart, eEnd] = clipped;
       const wd = countWeekdays(eStart, eEnd);
       const we = countWeekendDays(eStart, eEnd);
-      const weekdayBudget = Math.round((settings.weekday * wd) / 5);
-      const weekendBudget = Math.round((settings.weekend * we) / 2);
+      const weekdayBudget = Math.round((settings.weekday * wd) / 4);
+      const weekendBudget = Math.round((settings.weekend * we) / 3);
       const week = inRange(purchases, [eStart, eEnd]);
       let mat = 0, helg = 0, ovrigt = 0;
       for (const p of week) {
@@ -209,8 +210,8 @@ export function computeSnapshot(
     const [ws, we] = weekClip;
     weekdayDays = countWeekdays(ws, we);
     weekendDays = countWeekendDays(ws, we);
-    weekdayBudget = Math.round((settings.weekday * weekdayDays) / 5);
-    weekendBudget = Math.round((settings.weekend * weekendDays) / 2);
+    weekdayBudget = Math.round((settings.weekday * weekdayDays) / 4);
+    weekendBudget = Math.round((settings.weekend * weekendDays) / 3);
 
     const weekPurchases = inRange(purchases, [ws, we]);
     for (const p of weekPurchases) {

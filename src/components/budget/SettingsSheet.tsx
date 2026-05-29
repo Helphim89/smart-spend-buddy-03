@@ -61,7 +61,7 @@ export function SettingsSheet({ settings, onChange }: Props) {
                 />
               </Field>
 
-              <Field label="Mat mån–fre per vecka (kr)">
+              <Field label="Mat mån–tors per vecka (kr)">
                 <input
                   type="number"
                   value={local.weekday}

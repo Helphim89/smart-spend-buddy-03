@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Moon, Sun, TrendingDown, TrendingUp, Utensils, Sunset, Package, CalendarDays } from "lucide-react";
-import { usePurchases, useSettings, useTheme } from "@/lib/budget-store";
+import { useState } from "react";
+import { Moon, Sun, TrendingDown, TrendingUp, Utensils, Sunset, Package, CalendarDays, Share2, Check } from "lucide-react";
+import { usePurchases, useSettings, useTheme, useHouseholdId } from "@/lib/budget-store";
 import {
   computeSnapshot,
   formatSEK,
@@ -14,16 +15,36 @@ import { OutcomeTable } from "@/components/budget/OutcomeTable";
 import { WeeklyOutcome } from "@/components/budget/WeeklyOutcome";
 import { SettingsSheet } from "@/components/budget/SettingsSheet";
 import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
-  const { purchases, add, remove } = usePurchases();
-  const { settings, setSettings } = useSettings();
+  const householdId = useHouseholdId();
+  const { purchases, add, remove } = usePurchases(householdId);
+  const { settings, setSettings } = useSettings(householdId);
   const { theme, toggle } = useTheme();
+  const [copied, setCopied] = useState(false);
   const snap = computeSnapshot(purchases, settings);
+
+  async function shareLink() {
+    if (typeof window === "undefined") return;
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Budget", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        toast.success("Länk kopierad");
+        setTimeout(() => setCopied(false), 1500);
+      }
+    } catch {
+      /* avbruten */
+    }
+  }
 
   const monthStatus = statusFromPct(
     snap.monthly > 0 ? (snap.spentMonth / snap.monthly) * 100 : 0,
@@ -75,6 +96,13 @@ function Index() {
                 );
               })}
             </div>
+            <button
+              onClick={shareLink}
+              className="h-10 w-10 rounded-full bg-muted flex items-center justify-center"
+              aria-label="Dela länk"
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+            </button>
             <SettingsSheet settings={settings} onChange={setSettings} />
             <button
               onClick={toggle}
@@ -88,17 +116,11 @@ function Index() {
       </header>
 
       <main className="max-w-xl mx-auto px-5 py-6 space-y-5">
-        {/* --- Summary card with ring --- */}
         <section className="bg-card rounded-2xl p-6 border border-border/60 shadow-sm">
           <div className="flex items-center gap-6">
             <div className="shrink-0 relative">
               <svg width="96" height="96" viewBox="0 0 96 96" className="-rotate-90">
-                <circle
-                  cx="48" cy="48" r="42"
-                  fill="none"
-                  stroke="var(--color-muted)"
-                  strokeWidth="6"
-                />
+                <circle cx="48" cy="48" r="42" fill="none" stroke="var(--color-muted)" strokeWidth="6" />
                 <circle
                   cx="48" cy="48" r="42"
                   fill="none"
@@ -122,7 +144,7 @@ function Index() {
 
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Kvar denna månad
+                Kvar denna period
               </p>
               <p className="mt-1 text-3xl font-bold tabular-nums tracking-tight">
                 {formatSEK(snap.leftMonth)}
@@ -134,13 +156,7 @@ function Index() {
                   <TrendingUp className="h-4 w-4 text-[var(--color-danger)]" />
                 )}
                 <span className="text-muted-foreground">
-                  <span
-                    className={
-                      under
-                        ? "text-[var(--color-success)] font-semibold"
-                        : "text-[var(--color-danger)] font-semibold"
-                    }
-                  >
+                  <span className={under ? "text-[var(--color-success)] font-semibold" : "text-[var(--color-danger)] font-semibold"}>
                     {pctAbs}% {under ? "under" : "över"}
                   </span>{" "}
                   budget
@@ -162,7 +178,6 @@ function Index() {
           </div>
         </section>
 
-        {/* --- Budget blocks --- */}
         <section>
           <h2 className="px-1 pb-3 text-xs font-semibold text-muted-foreground uppercase tracking-widest">
             Budget per kategori
@@ -170,7 +185,7 @@ function Index() {
           <div className="grid gap-3">
             <BudgetBlock
               title="Mat vardag"
-              subtitle="mån–fre denna vecka"
+              subtitle={`mån–tors (${snap.weekdayDays} dagar kvar denna v.)`}
               icon={Utensils}
               budget={snap.weekdayBudget}
               spent={snap.spentWeekday}
@@ -181,7 +196,7 @@ function Index() {
             />
             <BudgetBlock
               title="Mat helg"
-              subtitle="lör–sön"
+              subtitle={`fre–sön (${snap.weekendDays} dagar denna helg)`}
               icon={Sunset}
               budget={snap.weekendBudget}
               spent={snap.spentWeekend}
@@ -192,7 +207,7 @@ function Index() {
             />
             <BudgetBlock
               title="Övrigt"
-              subtitle="per månad"
+              subtitle="per löneperiod"
               icon={Package}
               budget={snap.otherBudget}
               spent={snap.spentOther}
@@ -203,7 +218,7 @@ function Index() {
             />
             <BudgetBlock
               title="Totalt"
-              subtitle="hela månaden"
+              subtitle="hela perioden"
               icon={CalendarDays}
               budget={snap.monthly}
               spent={snap.spentMonth}
@@ -214,19 +229,11 @@ function Index() {
           </div>
         </section>
 
-        <WeeklyOutcome
-          purchases={purchases}
-          weekdayBudget={settings.weekday}
-          weekendBudget={settings.weekend}
-          otherBudget={settings.other}
-        />
+        <WeeklyOutcome purchases={purchases} settings={settings} />
 
         <SpendingChart purchases={purchases} />
 
-        <OutcomeTable
-          purchases={purchases}
-          users={settings.users}
-        />
+        <OutcomeTable purchases={purchases} users={settings.users} />
 
         <section>
           <h2 className="px-1 pb-3 text-xs font-semibold text-muted-foreground uppercase tracking-widest">

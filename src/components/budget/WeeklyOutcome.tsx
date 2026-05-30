@@ -1,29 +1,24 @@
-import type { Purchase } from "@/lib/budget-types";
-import { formatSEK, weeksInMonth } from "@/lib/budget-math";
+import type { Purchase, BudgetSettings } from "@/lib/budget-types";
+import { formatSEK, weeksInCycle } from "@/lib/budget-math";
 import { cn } from "@/lib/utils";
 
 interface Props {
   purchases: Purchase[];
-  weekdayBudget: number;
-  weekendBudget: number;
-  otherBudget: number;
+  settings: BudgetSettings;
 }
 
-export function WeeklyOutcome({
-  purchases, weekdayBudget, weekendBudget,
-}: Props) {
-  const weeks = weeksInMonth(purchases);
+export function WeeklyOutcome({ purchases, settings }: Props) {
+  const weeks = weeksInCycle(purchases, settings);
 
   return (
     <div className="bg-card rounded-2xl border border-border/60 shadow-sm overflow-hidden">
       <div className="px-5 pt-5 pb-2">
         <h3 className="font-semibold text-sm">Utfall per vecka</h3>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Mat vardag, Mat helg, Övrigt
+          Mat vardag (mån–tors), Mat helg (fre–sön), Övrigt
         </p>
       </div>
 
-      {/* Header row */}
       <div className="px-5 pb-2 grid grid-cols-[1fr_repeat(3,minmax(0,1fr))] gap-2 text-[10px] uppercase tracking-wide text-muted-foreground">
         <span></span>
         <span className="text-right">Vardag</span>
@@ -40,16 +35,21 @@ export function WeeklyOutcome({
               w.isCurrent && "bg-accent/5"
             )}
           >
-            <div className="flex items-center gap-2">
-              <span className="font-semibold text-xs">{w.label}</span>
-              {w.isCurrent && (
-                <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground font-semibold">
-                  nu
-                </span>
-              )}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-xs">{w.label}</span>
+                {w.isCurrent && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-accent text-accent-foreground font-semibold">
+                    nu
+                  </span>
+                )}
+              </div>
+              <span className="text-[9px] text-muted-foreground tabular-nums">
+                {w.weekdayDays}v / {w.weekendDays}h
+              </span>
             </div>
-            <Cell value={w.mat} budget={weekdayBudget} />
-            <Cell value={w.helg} budget={weekendBudget} />
+            <Cell value={w.mat} budget={w.weekdayBudget} />
+            <Cell value={w.helg} budget={w.weekendBudget} />
             <Cell value={w.ovrigt} />
           </div>
         ))}

@@ -95,8 +95,8 @@ export function usePurchases(householdId: string | null) {
       setReady(true);
     })();
 
-    const ch = supabase
-      .channel(`purchases-${householdId}`)
+    const ch = (supabase
+      .channel(`purchases-${householdId}`) as unknown as { on: (...args: unknown[]) => { subscribe: () => unknown } })
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "purchases", filter: `household_id=eq.${householdId}` },

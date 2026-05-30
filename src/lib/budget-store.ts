@@ -244,7 +244,7 @@ export function useSettings(householdId: string | null) {
 
     return () => {
       active = false;
-      supabase.removeChannel(ch);
+      supabase.removeChannel(ch as never);
     };
   }, [householdId]);
 

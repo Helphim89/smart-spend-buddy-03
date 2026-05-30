@@ -123,7 +123,7 @@ export function usePurchases(householdId: string | null) {
 
     return () => {
       active = false;
-      supabase.removeChannel(ch);
+      supabase.removeChannel(ch as never);
     };
   }, [householdId]);
 
@@ -222,8 +222,8 @@ export function useSettings(householdId: string | null) {
       setReady(true);
     })();
 
-    const ch = supabase
-      .channel(`household-${householdId}`)
+    const ch = (supabase
+      .channel(`household-${householdId}`) as unknown as { on: (...args: unknown[]) => { subscribe: () => unknown } })
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "households", filter: `id=eq.${householdId}` },

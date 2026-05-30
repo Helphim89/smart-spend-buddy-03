@@ -1,5 +1,4 @@
 export const CATEGORIES = ["Mat", "Övrigt"] as const;
-
 export type Category = (typeof CATEGORIES)[number];
 
 export interface Purchase {
@@ -8,14 +7,15 @@ export interface Purchase {
   description: string;
   category: Category;
   date: string; // ISO
-  user?: string; // namn på personen som la in
+  user?: string;
 }
 
 export interface BudgetSettings {
-  monthly: number;  // per månad
-  weekday: number;  // mån–fre Mat-budget per vecka
-  weekend: number;  // lör–sön Mat-budget per helg
-  other: number;    // Övrigt-budget per månad
+  monthly: number;
+  weekday: number;  // Mat mån–tors per full vecka (4 dagar)
+  weekend: number;  // Mat fre–sön per full helg (3 dagar)
+  other: number;    // Övrigt per cykel
+  payday: number;   // 1..28 — lönedag (cykelstart). Flyttas vid helg.
   users: [string, string];
   currentUser: string;
 }

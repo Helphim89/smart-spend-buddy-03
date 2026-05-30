@@ -3,7 +3,10 @@ import {
   BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import type { Purchase } from "@/lib/budget-types";
-import { startOfMonth, endOfMonth, formatSEK } from "@/lib/budget-math";
+import { cycleRange, formatSEK } from "@/lib/budget-math";
+
+function startOfMonth(d: Date) { return cycleRange(d, 27)[0]; }
+function endOfMonth(d: Date) { return cycleRange(d, 27)[1]; }
 import { cn } from "@/lib/utils";
 
 type Mode = "day" | "week" | "month";

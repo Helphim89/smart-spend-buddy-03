@@ -91,7 +91,7 @@ export function usePurchases(householdId: string | null) {
         .order("date", { ascending: false });
       if (!active) return;
       if (error) console.error(error);
-      setPurchases((data ?? []).map((r) => toPurchase(r as DbPurchase)));
+      setPurchases((data ?? []).map((r: DbPurchase) => toPurchase(r)));
       setReady(true);
     })();
 
@@ -100,7 +100,7 @@ export function usePurchases(householdId: string | null) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "purchases", filter: `household_id=eq.${householdId}` },
-        (payload) => {
+        (payload: { eventType: string; new: DbPurchase; old: { id?: string } }) => {
           setPurchases((prev) => {
             if (payload.eventType === "INSERT") {
               const row = toPurchase(payload.new as DbPurchase);
@@ -164,8 +164,7 @@ export function usePurchases(householdId: string | null) {
     if (patch.category !== undefined) dbPatch.category = patch.category;
     if (patch.user !== undefined) dbPatch.user_name = patch.user ?? null;
     if (patch.date !== undefined) dbPatch.date = patch.date;
-    // @ts-expect-error - dynamic patch shape
-    await supabase.from("purchases").update(dbPatch).eq("id", id);
+    await (supabase.from("purchases") as unknown as { update: (p: typeof dbPatch) => { eq: (k: string, v: string) => Promise<unknown> } }).update(dbPatch).eq("id", id);
   }, []);
 
   return { purchases, add, remove, update, ready };
@@ -228,7 +227,7 @@ export function useSettings(householdId: string | null) {
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "households", filter: `id=eq.${householdId}` },
-        (payload) => {
+        (payload: { new: DbHousehold }) => {
           const row = payload.new as DbHousehold;
           setSettingsState((prev) => ({
             ...prev,
@@ -272,7 +271,7 @@ export function useSettings(householdId: string | null) {
                 updated_at: new Date().toISOString(),
               })
               .eq("id", householdId)
-              .then(({ error }) => {
+              .then(({ error }: { error: unknown }) => {
                 if (error) console.error("Save settings", error);
               });
           }, 400);
